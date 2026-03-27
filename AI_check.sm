@@ -1,0 +1,109 @@
+#!/bin/bash
+# AI Workstation Health Check Script
+# Futás: bash ai_check.sh
+# Kimenet: minden komponens OK/HIBA státusz
+
+echo "🚀 AI Workstation ellenőrzés kezdése..."
+echo "--------------------------------------"
+
+# 1️⃣ GPU ellenőrzés (Nvidia)
+if command -v nvidia-smi &> /dev/null; then
+    echo "GPU (Nvidia) ellenőrzés..."
+    if nvidia-smi &> /dev/null; then
+        echo "✅ Nvidia GPU elérhető:"
+        nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader
+    else
+        echo "❌ Nvidia GPU nem található"
+    fi
+else
+    echo "ℹ Nvidia-szoftver nincs telepítve"
+fi
+
+# 1️⃣ GPU ellenőrzés (AMD/ROCm)
+if command -v rocminfo &> /dev/null; then
+    echo "GPU (AMD/ROCm) ellenőrzés..."
+    if rocminfo | grep -q "GPU"; then
+        echo "✅ ROCm eszköz elérhető"
+    else
+        echo "❌ ROCm GPU nem található"
+    fi
+fi
+
+# 2️⃣ CPU és memória
+echo "CPU és memória ellenőrzés..."
+GOV_OK=true
+for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+    val=$(cat $cpu)
+    if [ "$val" != "performance" ]; then
+        GOV_OK=false
+    fi
+done
+if $GOV_OK; then
+    echo "✅ CPU governor performance módon"
+else
+    echo "❌ CPU governor nem performance"
+fi
+
+echo "Memória (RAM):"
+free -h | head -2
+
+echo "HugePages:"
+cat /proc/sys/vm/nr_hugepages
+
+echo "VFS cache pressure:"
+sysctl vm.vfs_cache_pressure
+
+echo "Swappiness:"
+sysctl vm.swappiness
+
+# 3️⃣ Kernel és modulok
+echo "Kernel verzió:"
+uname -r
+
+echo "Betöltött NVIDIA modulok:"
+lsmod | grep nvidia || echo "ℹ Nincs NVIDIA modul betöltve"
+
+# 4️⃣ tmpfs / fstab
+echo "tmpfs mountok:"
+mount | grep tmpfs
+
+# 5️⃣ Python / AI könyvtárak
+if command -v python3 &> /dev/null; then
+    echo "Python ellenőrzés:"
+    python3 -c "import sys; print(f'Python verzió: {sys.version}')" 
+
+    echo "Telepített AI könyvtárak:"
+    pip list | grep -E "torch|tensorflow|onnx|openvino|cupy" || echo "ℹ Nincsenek telepített AI könyvtárak"
+
+    # Torch GPU check
+    python3 - <<'EOF'
+try:
+    import torch
+    if torch.cuda.is_available():
+        print(f"✅ PyTorch GPU elérhető, CUDA verzió: {torch.version.cuda}")
+    else:
+        print("❌ PyTorch GPU nem elérhető")
+except ImportError:
+    print("ℹ PyTorch nincs telepítve")
+EOF
+
+    # OpenVINO GPU check
+    python3 - <<'EOF'
+try:
+    from openvino.runtime import Core
+    core = Core()
+    devices = core.available_devices
+    print(f"✅ OpenVINO elérhető eszközök: {devices}")
+except ImportError:
+    print("ℹ OpenVINO nincs telepítve")
+EOF
+else
+    echo "❌ Python nem található"
+fi
+
+# 6️⃣ NVMe / SSD ellenőrzés
+echo "Tároló eszközök:"
+lsblk
+
+echo "--------------------------------------"
+echo "🚀 AI Workstation ellenőrzés kész!"
