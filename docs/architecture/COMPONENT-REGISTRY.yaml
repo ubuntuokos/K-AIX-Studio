@@ -1,6 +1,11 @@
 version: "2.0"
 status: canonical-working-baseline
 last_updated: "2026-08-18"
+registry_governance:
+  provider_default_semantics: MANDATORY_SUPPORT unless an ADR assigns canonical authority
+  synchronize_with:
+    - FINAL-ARCHITECTURE-v2.0.md
+    - adr/README.md
 
 status_vocabulary:
   MANDATORY: baseline capability or fabric must exist
