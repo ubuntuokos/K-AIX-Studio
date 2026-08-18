@@ -46,6 +46,8 @@ This directory stores architecture decisions for FINAL ARCHITECTURE v2.0.
 | ADR-0031 | DNS Privacy & Resolution Fabric |
 | ADR-0032 | Work Memory & Human Knowledge Surfaces |
 
+The machine-readable status/provider mapping is maintained in `../COMPONENT-REGISTRY.yaml`. The human-readable consolidated baseline is maintained in `../FINAL-ARCHITECTURE-v2.0.md`.
+
 ## Required ADR sections
 
 Each ADR should contain:
