@@ -4,6 +4,8 @@ Status: **canonical working baseline**
 Branch: `agent/final-architecture-v2`  
 Last baseline update: 2026-08-18
 
+> Implementation note: architecture compliance is defined by the synchronized human baseline, machine-readable component registry, and accepted ADR set. Provider names normally mean mandatory support through replaceable adapters unless an ADR explicitly assigns canonical authority.
+
 ## 1. Source-of-truth hierarchy
 
 FINAL ARCHITECTURE v2.0 is capability-first and provider-independent.
