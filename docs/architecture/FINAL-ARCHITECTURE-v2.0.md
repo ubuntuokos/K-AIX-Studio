@@ -4,236 +4,209 @@ Status: **canonical working baseline**
 Branch: `agent/final-architecture-v2`  
 Last baseline update: 2026-08-18
 
-## 1. Architectural rule set
+## 1. Source-of-truth hierarchy
 
-FINAL ARCHITECTURE v2.0 is capability-first and provider-independent. A named project may be a mandatory supported reference provider without becoming a global hard dependency or authority outside its declared capability boundary.
+FINAL ARCHITECTURE v2.0 is capability-first and provider-independent.
+
+The repository uses three synchronized architecture views:
+
+1. **This document** — human-readable baseline and authority map.
+2. **`COMPONENT-REGISTRY.yaml`** — machine-readable fabric/provider/status registry.
+3. **`adr/ADR-NNNN-*.md`** — individual accepted architecture decisions and authority boundaries.
+
+When a named project is mandatory, the default meaning is **mandatory support through a replaceable provider adapter**. A project becomes a global hard authority only when an ADR explicitly assigns that authority.
 
 ### Status vocabulary
 
-- **MANDATORY** — capability/fabric is part of the baseline and must be implemented.
-- **MANDATORY SUPPORT** — provider/adapter must be supported, but the provider is replaceable.
-- **OPTIONAL** — useful provider or backend that is not required for a compliant deployment.
-- **WATCH** — promising project that is not mature/reproducible enough for runtime baseline status.
-- **EXCLUDED AS AUTHORITY** — may be integrated, but must not assume the named authority role.
+- **MANDATORY** — capability/fabric is part of the baseline and must exist.
+- **MANDATORY SUPPORT** — provider/adapter must be supported, but the provider remains replaceable.
+- **OPTIONAL** — useful provider/backend not required for compliant deployment.
+- **WATCH** — promising project not mature/reproducible enough for runtime baseline.
+- **EXCLUDED AS AUTHORITY** — integration is allowed, but authority takeover is forbidden.
 
 ## 2. Global authority map
 
-| Authority | Canonical role |
-|---|---|
-| Temporal | Global Durable Orchestration & Workflow Lifecycle |
-| NATS JetStream | Canonical event/message fabric |
-| Valkey | Canonical low-latency state/queue/cache |
-| Goose | Interactive Agent Runtime & Tool Execution reference provider |
-| Central MCP/Capability Gateway | Capability discovery, tool/provider mediation and policy-bound invocation |
-| nftables | Kernel network enforcement provider |
-| Blender / Unreal / Krita / NLE surfaces | Human authoring and finishing surfaces in their own domains |
+| Authority | Canonical role | ADR |
+|---|---|---|
+| Temporal | Global Durable Orchestration & Workflow Lifecycle | ADR-0002 |
+| NATS JetStream | Canonical event/message fabric | ADR-0024 |
+| Valkey | Canonical low-latency state/queue/cache | ADR-0024 |
+| Goose | Interactive Agent Runtime & Tool Execution reference provider | ADR-0013 |
+| Central MCP/Capability Gateway | Capability discovery, provider mediation and policy-bound invocation | baseline |
+| nftables | Canonical Linux kernel network enforcement | ADR-0028 |
+| Krita | Interactive raster/painting authoring surface | ADR-0008 |
+| Blender / Unreal | 3D authoring/finishing surfaces | baseline |
+| Human NLE surfaces | Human video finishing/mastering | baseline |
 
-No provider-specific AI model family may silently replace these authorities.
+No provider-specific AI model, workbench, queue, cache, scanner or integration tool may silently replace these authorities.
 
-## 3. Mandatory capability fabrics
+## 3. Mandatory architecture fabrics
 
-The following fabrics are baseline elements of FINAL ARCHITECTURE v2.0.
+### 3.1 Orchestration, agents, integration and gateways
 
-### Core orchestration, execution and integration
+| Fabric | Baseline provider(s) | ADR |
+|---|---|---|
+| Global Durable Orchestration & Workflow Lifecycle | Temporal | ADR-0002 |
+| Visual Integration Automation & Human Workflow | n8n | ADR-0003 |
+| Interactive Agent Runtime & Tool Execution | Goose | ADR-0013 |
+| Canonical Event/Message Fabric | NATS JetStream | ADR-0024 |
+| Low-Latency State/Queue/Cache | Valkey | ADR-0024 |
+| LLM/Model Gateway Security & Routing | Trylon Gateway + LiteLLM | ADR-0016 |
+| Remote AI Application, Tool & Hosted Execution | Hugging Face Spaces + hf_transfer | ADR-0017 |
+| Developer Agent Workbench & Evaluation Harness | OpenYak + Terax AI + CAIRO Harness | ADR-0022 |
 
-- **Global Durable Orchestration & Workflow Lifecycle Fabric** — MANDATORY; Temporal is the primary reference provider.
-- **Visual Integration Automation & Human Workflow Fabric** — MANDATORY; n8n is a mandatory supported primary reference provider.
-- **Interactive Agent Runtime & Tool Execution** — Goose mandatory supported reference provider.
-- **Canonical event/message fabric** — NATS JetStream.
-- **Canonical low-latency state/queue/cache** — Valkey.
-- **Central MCP/Capability Gateway** — provider mediation and capability routing.
+### 3.2 Generative media and creative production
 
-### Media and generative AI
+| Fabric/capability | Baseline provider(s) | ADR |
+|---|---|---|
+| Local Multimodal Generative Media Execution | WanGP/Wan2GP + Stability Matrix + Open Generative AI + ComfyUI | ADR-0012 |
+| Agentic Video Production | OpenMontage + Goose + Ollama + OpenWebUI + ComfyUI + Blender + Kdenlive | ADR-0014 |
+| AI-Assisted Raster Painting & Generative Image Editing | Krita + krita-ai-diffusion | ADR-0008 |
+| AI-Assisted Interactive Video Editing & Creator NLE | Clypra | ADR-0009 |
+| AI-Assisted DJ Performance & Music Mixing | Mixxx | ADR-0010 |
+| Remote Generative Model API & Aggregation | MuAPI | ADR-0011 |
+| Realtime Voice | ElevenLabs | ADR-0020 |
+| Local Voice I/O | Voicebox | ADR-0020 |
+| Visual Generation & Editing | FLUX | ADR-0021 |
+| Web-to-Video | HyperFrames | ADR-0021 |
+| Vocal AI | Kits AI | ADR-0021 |
+| Shorts/Clipping | Shorts | ADR-0021 |
 
-- **Stability Matrix Local Generative Media Fabric** — MANDATORY.
-- **AI-Assisted Raster Painting & Generative Image Editing Fabric** — MANDATORY; Krita + `krita-ai-diffusion` primary local workbench.
-- **AI-Assisted Interactive Video Editing & Creator NLE Fabric** — MANDATORY; Clypra mandatory supported reference provider.
-- **AI-Assisted DJ Performance & Music Mixing Fabric** — MANDATORY; Mixxx mandatory supported reference provider.
-- **Remote Generative Model API & Aggregation Fabric** — MANDATORY; MuAPI mandatory supported reference provider.
-- **Realtime Voice** — ElevenLabs mandatory supported provider.
-- **Local Voice I/O** — Voicebox mandatory.
-- **Agentic Video Production pipeline** — OpenMontage + Goose + Ollama + OpenWebUI + ComfyUI + Blender + Kdenlive mandatory integration path.
-- **Open Generative AI Studio** — MANDATORY.
-- **FLUX Visual Generation & Editing** — MANDATORY.
-- **HyperFrames Web-to-Video** — MANDATORY.
-- **Kits AI Vocal** — MANDATORY.
-- **Shorts clipping workflow** — MANDATORY.
+### 3.3 3D, reconstruction, spatial and digital twin
 
-### 3D, spatial and digital twin
+| Fabric | Baseline provider(s) | ADR |
+|---|---|---|
+| Generative 3D Asset & Geometry Lifecycle | Meshy + Hunyuan 3D providers | ADR-0004 / ADR-0001 |
+| 3D Reconstruction, Photogrammetry & Scene Capture | AliceVision + Meshroom | ADR-0006 |
+| Photogrammetry, Camera Geometry & Multi-View Reconstruction | COLMAP | ADR-0007 |
+| Infrastructure Digital Twin & Engineering Data | iTwin/iTwin.js | ADR-0005 |
+| Generative 3D World & Spatial Reconstruction | HY-World-2.0 | ADR-0001 |
+| 3D Motion Generation & Character Animation Planning | HY-Motion-1.0 | ADR-0001 |
+| Motion Capture & Human Pose Acquisition | PoseAI | ADR-0019 |
 
-- **Generative 3D Asset & Geometry Lifecycle Fabric** — MANDATORY; provider-independent.
-- **Infrastructure Digital Twin & Engineering Data Fabric** — MANDATORY; iTwin/iTwin.js primary reference provider.
-- **Generative 3D World & Spatial Reconstruction Fabric** — MANDATORY.
-- **3D Motion Generation & Character Animation Planning Fabric** — MANDATORY.
-- **MoCap integration** — PoseAI mandatory supported provider.
+A provider-independent **Reconstruction Gateway** is mandatory for classical reconstruction integration. Canonical reconstruction objects are defined in the registry and ADR-0006.
 
-### Physical AI and simulation
+### 3.4 Physical AI and simulation
 
-- **Physical AI Fabric** — MANDATORY; NVIDIA Cosmos 3 remains the primary baseline provider family.
-- **Simulation / world modeling integration** — MiroFish and domain world-model adapters supported without replacing orchestration authority.
+- **Physical AI Fabric** — MANDATORY; NVIDIA Cosmos 3 is the primary baseline provider family. See ADR-0018.
+- Tencent-Hunyuan HY-Embodied/HY-VLA are mandatory supported alternatives inside this fabric. See ADR-0001.
+- MiroFish remains a mandatory supported simulation/world-model integration component without replacing orchestration or Physical-AI provider authority.
 
-### Document and knowledge perception
+### 3.5 Document, work memory and knowledge
 
-- **Document Perception, OCR & Structured Visual Extraction Fabric** — MANDATORY.
-- **Pieces OS Work Memory** — MANDATORY supported work-memory component.
-- **Obsidian integration** — human knowledge/workbench surface; not global workflow authority.
+- **Document Perception, OCR & Structured Visual Extraction Fabric** — MANDATORY; HunyuanOCR-1.5 primary reference provider. See ADR-0001.
+- **Work Memory / Knowledge Workspace Integration** — MANDATORY; Pieces OS work-memory role and Obsidian human knowledge-workbench role. See ADR-0032.
 
-### Runtime, acceleration and distributed execution
+### 3.6 Distributed execution, acceleration and HPC
 
-- **Adaptive Inference Acceleration Profile** — MANDATORY capability: quantization, offload, few-step/distilled execution, cache acceleration, speculative decoding and hardware-aware sparse-attention fallback.
-- **DiT inference optimization** — MANDATORY.
-- **WaveSpeedAI/Waverless Distributed GPU Fabric** — MANDATORY supported distributed execution path.
-- **GDRCopy** — MANDATORY.
-- **GPUDirect Storage** — MANDATORY where hardware/software path is supported.
-- **NUMA + GPU auto-discovery** — MANDATORY.
-- **NUMA/PCIe Locality & IRQ Placement Fabric** — MANDATORY.
-- **NVIDIA HPC SDK + Intel oneAPI** — MANDATORY supported HPC development fabric.
+- **Distributed GPU Execution Fabric** — MANDATORY; WaveSpeedAI/Waverless mandatory supported reference path. ADR-0015.
+- **Adaptive Inference Acceleration Profile** — MANDATORY: quantization, CPU/GPU offload, few-step/distilled execution, cache acceleration, speculative decoding, hardware-aware sparse-attention fallback and DiT optimization.
+- Hardware-incompatible acceleration kernels MUST be capability-gated and have a compatible fallback.
+- **HPC Development Fabric** — MANDATORY; NVIDIA HPC SDK + Intel oneAPI. ADR-0023.
 
-### Host, storage, desktop and security
+### 3.7 Host, workstation and storage
 
-- **Host Performance / Kernel & I/O Policy Fabric** — MANDATORY.
-- **AI Workstation Adaptive Optimizer / KDE6 KCM control plane** — MANDATORY.
-- **Local Block Cache / LVM-cache** — MANDATORY.
-- **DNS/Privacy stack** — AdGuard Home + dnscrypt-proxy + Unbound mandatory baseline.
-- **Endpoint Detection** — Falco + Wazuh + ClamAV mandatory baseline.
-- **Supply Chain Security** — Harbor + Cosign + Syft + OPA/Conftest + Loki mandatory baseline.
-- **nftables** — sole canonical kernel enforcement authority; Foomuuri may be supported as management layer.
+- **Host Performance / Kernel & I/O Policy Fabric** — MANDATORY. ADR-0025.
+- **NUMA/PCIe Locality & IRQ Placement Fabric** — MANDATORY, including NUMA+GPU auto-discovery and stable GPU UUID/PCI-BDF identity. ADR-0025.
+- **Adaptive Workload Optimization & Workstation Control Fabric** — MANDATORY, with native Plasma 6/KF6 KCM control surface, privileged/unprivileged plane separation and systemd/cgroup-v2 reference actuation. ADR-0026.
+- **Local Block Cache & GPU Data Path** — MANDATORY; LVM-cache, GDRCopy and capability-gated GPUDirect Storage. ADR-0027.
 
-## 4. Tencent-Hunyuan mandatory integration profile
+### 3.8 Network and security
 
-Tencent-Hunyuan is integrated as a **capability provider family**, not as a monolithic global dependency.
+- **Host Network Firewall & Traffic Policy Fabric** — MANDATORY; nftables is the canonical kernel enforcement provider, Foomuuri is the supported policy/compiler management layer and OpenSnitch is the process-aware egress plane. ADR-0028.
+- **Endpoint Malware & Behavioral Detection Fabric** — MANDATORY; ClamAV + Wazuh + Falco + Fail2Ban + OpenSnitch, feeding a provider-independent policy/containment gate. ADR-0029.
+- **Supply Chain Security & Artifact Trust Fabric** — MANDATORY; Harbor + Cosign + Syft + OPA/Conftest + Loki. ADR-0030.
+- **DNS/Privacy Resolution Fabric** — MANDATORY; AdGuard Home + dnscrypt-proxy + Unbound. ADR-0031.
 
-### 4.1 Generative video — MANDATORY SUPPORT
+## 4. Tencent-Hunyuan provider family
 
-- `Tencent-Hunyuan/HunyuanVideo-1.5` — primary Hunyuan T2V/I2V provider.
-- `Tencent-Hunyuan/OmniWeaving` — advanced free-form multimodal video composition, reference, key-frame and V2V provider.
-- `Tencent-Hunyuan/HunyuanCustom` — identity/subject-preserving and multimodal controllable video provider.
-- `Tencent-Hunyuan/HunyuanVideo-Avatar` — audio-driven single/multi-character avatar animation provider.
-- `Tencent-Hunyuan/HunyuanVideo-Foley` — video/text-to-audio Foley/SFX provider.
+Tencent-Hunyuan is integrated as a capability-provider family, never as a monolithic global dependency. See ADR-0001.
 
-These providers do not own global video orchestration or NLE authority.
+### Mandatory supported Hunyuan providers
 
-### 4.2 Generative 3D asset — MANDATORY SUPPORT
+- `HunyuanVideo-1.5` — T2V/I2V;
+- `OmniWeaving` — free-form multimodal video composition/editing;
+- `HunyuanCustom` — subject/identity-preserving controllable video;
+- `HunyuanVideo-Avatar` — audio-driven avatar animation;
+- `HunyuanVideo-Foley` — video/text-to-audio Foley/SFX;
+- `HunyuanImage-3.0` — multimodal T2I/I2I/image editing, deployment optional/remote-distributed capable;
+- `Hunyuan3D-2.1` — image-to-shape + PBR texture;
+- `Hunyuan3D-Omni` — controlled 3D generation;
+- `Hunyuan3D-Part` — semantic part segmentation/decomposition;
+- `FlashVDM` — 3D diffusion acceleration;
+- `HY-World-2.0` — generative 3D world/spatial reconstruction;
+- `HunyuanOCR-1.5` — document OCR/structured visual extraction;
+- `HY-Motion-1.0` — generated 3D human motion;
+- `HY-Embodied` / HY-VLA — alternative Physical AI/embodied providers.
 
-- `Tencent-Hunyuan/Hunyuan3D-2.1` — image-to-shape + PBR texture provider.
-- `Tencent-Hunyuan/Hunyuan3D-Omni` — controllable 3D generation using point cloud, voxel, bbox and skeleton/pose controls.
-- `Tencent-Hunyuan/Hunyuan3D-Part` — semantic part segmentation/decomposition provider.
-- `Tencent-Hunyuan/FlashVDM` — mandatory supported 3D diffusion acceleration capability.
+### Hunyuan WATCH
 
-These providers extend, but do not replace, Meshy remote generation, Blender/Unreal authoring, classical photogrammetry, or the canonical asset-lifecycle authority.
+- `HunyuanVision`
+- `Hunyuan3D-Buffalo1.0`
+- `Hunyuan3D-WorldClaw`
 
-### 4.3 Generative 3D world & spatial reconstruction — MANDATORY
+### Hunyuan OPTIONAL
 
-Primary reference provider: `Tencent-Hunyuan/HY-World-2.0`.
+- `Hy3` and superseded general Hunyuan LLM families through the canonical model gateway.
 
-Required capability boundary:
+## 5. Non-negotiable provider integration contract
 
-- text/single-image to navigable 3D world;
-- multi-view/video to 3D reconstruction;
-- mesh / Gaussian Splatting / point-cloud outputs;
-- panorama generation, trajectory planning, world expansion and composition;
-- export/adaptation to Blender, Unity, Unreal and simulation/robotics stacks.
+Every mandatory supported provider adapter MUST expose or map, where relevant:
 
-Must not replace iTwin engineering digital-twin authority, COLMAP/AliceVision classical reconstruction, Blender/Unreal authoring or Temporal orchestration.
-
-### 4.4 Document perception / OCR — MANDATORY
-
-Primary reference provider: `Tencent-Hunyuan/HunyuanOCR` / HunyuanOCR-1.5.
-
-Canonical objects:
-
-- `DocumentInput`
-- `DocumentRegion`
-- `OCRSpan`
-- `LayoutElement`
-- `TableStructure`
-- `FormulaStructure`
-- `DocumentEntity`
-- `StructuredExtraction`
-- `DocumentTranslation`
-- `OCRConfidence`
-
-Supported runtime adapters should include vLLM, Transformers and llama.cpp/OpenAI-compatible serving where available. This fabric is not the general LLM/VLM authority.
-
-### 4.5 3D motion generation — MANDATORY
-
-Primary reference provider: `Tencent-Hunyuan/HY-Motion-1.0`.
-
-Required boundary:
-
-- text-to-skeleton 3D human motion generation;
-- retarget/export path to DCC and game-engine pipelines;
-- SMPL/SMPLH, FBX/BVH and Blender/Unreal adapter strategy.
-
-Generated motion remains distinct from PoseAI/MoCap captured motion.
-
-### 4.6 Physical AI / embodied intelligence — MANDATORY SUPPORT
-
-`Tencent-Hunyuan/HY-Embodied` and HY-VLA are mandatory supported alternative providers for physical-world perception, action-state understanding, action-transition reasoning and VLA/robotics workflows.
-
-They do not replace the NVIDIA Cosmos 3 baseline. Large variants are routed through remote/distributed execution rather than becoming a local workstation hard dependency.
-
-### 4.7 Image generation — MANDATORY SUPPORT, deployment optional
-
-`Tencent-Hunyuan/HunyuanImage-3.0` is a mandatory supported Hunyuan image provider for native multimodal T2I/I2I, reasoning-aware editing and multi-image fusion.
-
-It does not replace FLUX/Krita as the primary local visual-generation/editing path and must remain remote/distributed-capable.
-
-### 4.8 Hunyuan general LLMs — OPTIONAL provider path
-
-`Tencent-Hunyuan/Hy3` and older Hunyuan LLM generations may be exposed through the canonical LLM gateway and remote/distributed runtime. They are not mandatory local models and must not replace LiteLLM/Trylon, vLLM serving policy, Goose or global orchestration authority.
-
-### 4.9 Hardware-aware acceleration — MANDATORY POLICY
-
-For applicable Hunyuan and other model runtimes, the integration layer must select compatible acceleration methods automatically:
-
-- few-step / step-distilled inference;
-- DeepCache / TeaCache / TaylorCache-class caching where supported;
-- FP8 / INT4 / quantization where supported;
-- model/CPU/GPU offload;
-- speculative decoding / MTP / DFlash where supported;
-- sparse-attention backend selected from hardware capabilities.
-
-`flex-block-attn` is hardware-gated and must not be enabled on unsupported GPU architectures. A compatible attention backend must remain available as fallback.
-
-### 4.10 WATCH list
-
-The following remain WATCH rather than runtime baseline until reproducible open weights/inference are available and validated:
-
-- `Tencent-Hunyuan/HunyuanVision`
-- `Tencent-Hunyuan/Hunyuan3D-Buffalo1.0`
-- `Tencent-Hunyuan/Hunyuan3D-WorldClaw`
-
-Superseded HunyuanVideo/Hunyuan3D/general-LLM generations are compatibility/fallback targets only unless an ADR promotes them.
-
-## 5. Provider integration contract
-
-Every mandatory supported provider adapter must expose, at minimum:
-
-1. capability descriptor and model/version identity;
-2. input/output schema and canonical object mapping;
-3. deterministic provider selection constraints;
+1. capability descriptor and provider/model/version identity;
+2. canonical input/output schema;
+3. deterministic selection constraints;
 4. license/usage-rights gate;
 5. checksum/provenance/lineage metadata;
-6. VRAM/RAM/GPU-architecture requirements;
-7. local, remote and distributed execution eligibility;
-8. health/readiness information;
-9. observability hooks and execution metrics;
+6. RAM/VRAM/GPU-architecture/runtime requirements;
+7. local/remote/distributed execution eligibility;
+8. health/readiness state;
+9. observability and correlation IDs;
 10. security/policy decision context;
-11. failure classification and fallback eligibility;
-12. explicit declaration of authorities it must not assume.
+11. failure classification and explicit fallback eligibility;
+12. authorities the provider is forbidden to assume.
 
-## 6. Change control
+## 6. Cross-cutting architecture rules
 
-Architecture changes are documented through ADRs under `docs/architecture/adr/`.
+### 6.1 Durable lifecycle vs local execution
 
-A component may be promoted to **MANDATORY** only when:
+Temporal owns durable workflow lifecycle. Provider-local queues/subworkflows are implementation details only.
 
-- its capability boundary is explicit;
+### 6.2 Events vs state
+
+NATS JetStream is the canonical event/message fabric. Valkey is the canonical low-latency state/queue/cache. Neither replaces Temporal durable workflow state.
+
+### 6.3 Human authoring
+
+AI/provider adapters augment Krita, Blender, Unreal and NLE workbenches. They do not silently replace human authoring/finishing authority.
+
+### 6.4 Storage vs acceleration
+
+Cache, scratch, hf_transfer, GDRCopy and GPUDirect Storage accelerate movement/access. They do not become canonical artifact/model storage.
+
+### 6.5 Security sensor vs enforcement
+
+Detection/correlation components produce normalized findings/incidents and feed a policy gate. nftables remains kernel network enforcement authority; containment primitives remain explicit and auditable.
+
+### 6.6 Hardware-aware routing
+
+Incompatible acceleration backends MUST be disabled automatically. Every capability-gated optimization requires a compatible fallback path.
+
+## 7. Change control
+
+Architecture changes are recorded as ADRs under `docs/architecture/adr/` and synchronized into `COMPONENT-REGISTRY.yaml`.
+
+A capability may be promoted to **MANDATORY** only when:
+
+- capability boundary is explicit;
 - authority conflicts are resolved;
-- provider lock-in is avoided or justified;
+- provider lock-in is avoided or explicitly justified;
 - deployment/resource constraints are documented;
-- security, observability and fallback behavior are defined;
-- a reproducible integration path exists, or the mandatory item is explicitly a fabric rather than one runtime implementation.
+- security, provenance, observability and fallback behavior are defined;
+- a reproducible integration path exists, or the mandatory element is explicitly a provider-independent fabric.
 
-The `main` branch becomes the canonical published baseline only after the corresponding architecture PR is reviewed and merged.
+The `main` branch becomes the canonical published baseline only after the architecture PR is reviewed and merged.
+
+## 8. ADR index
+
+The authoritative ADR index is maintained in `docs/architecture/adr/README.md`. The current accepted series is ADR-0001 through ADR-0032.
