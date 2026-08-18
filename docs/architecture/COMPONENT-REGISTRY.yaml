@@ -1,0 +1,182 @@
+version: "2.0"
+status: canonical-working-baseline
+last_updated: "2026-08-18"
+
+status_vocabulary:
+  MANDATORY: baseline capability or fabric must exist
+  MANDATORY_SUPPORT: provider adapter must be supported but remains replaceable
+  OPTIONAL: useful non-required provider or backend
+  WATCH: not yet mature or reproducible enough for baseline runtime use
+  EXCLUDED_AS_AUTHORITY: integration allowed but authority takeover forbidden
+
+authorities:
+  global_durable_orchestration:
+    provider: Temporal
+  event_message_fabric:
+    provider: NATS_JetStream
+  low_latency_state_queue_cache:
+    provider: Valkey
+  interactive_agent_runtime:
+    provider: Goose
+    status: MANDATORY_SUPPORT
+  capability_gateway:
+    provider: Central_MCP_Capability_Gateway
+  kernel_network_enforcement:
+    provider: nftables
+
+fabrics:
+  - id: generative_3d_asset_geometry_lifecycle
+    name: Generative 3D Asset & Geometry Lifecycle Fabric
+    status: MANDATORY
+    providers:
+      - name: Meshy
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/Hunyuan3D-2.1
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/Hunyuan3D-Omni
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/Hunyuan3D-Part
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/FlashVDM
+        status: MANDATORY_SUPPORT
+        role: acceleration
+
+  - id: generative_3d_world_spatial_reconstruction
+    name: Generative 3D World & Spatial Reconstruction Fabric
+    status: MANDATORY
+    providers:
+      - name: Tencent-Hunyuan/HY-World-2.0
+        status: MANDATORY_SUPPORT
+        role: primary_reference
+
+  - id: infrastructure_digital_twin_engineering_data
+    name: Infrastructure Digital Twin & Engineering Data Fabric
+    status: MANDATORY
+    providers:
+      - name: iTwin/iTwin.js
+        status: MANDATORY_SUPPORT
+        role: primary_reference
+
+  - id: document_perception_ocr_structured_extraction
+    name: Document Perception, OCR & Structured Visual Extraction Fabric
+    status: MANDATORY
+    providers:
+      - name: Tencent-Hunyuan/HunyuanOCR
+        version_family: HunyuanOCR-1.5
+        status: MANDATORY_SUPPORT
+        role: primary_reference
+
+  - id: motion_generation_character_animation_planning
+    name: 3D Motion Generation & Character Animation Planning Fabric
+    status: MANDATORY
+    providers:
+      - name: Tencent-Hunyuan/HY-Motion-1.0
+        status: MANDATORY_SUPPORT
+        role: primary_reference
+
+  - id: physical_ai
+    name: Physical AI Fabric
+    status: MANDATORY
+    providers:
+      - name: NVIDIA/Cosmos-3
+        status: MANDATORY_SUPPORT
+        role: primary_baseline
+      - name: Tencent-Hunyuan/HY-Embodied
+        status: MANDATORY_SUPPORT
+        role: alternative_reference
+      - name: Tencent-Hunyuan/HY-VLA
+        status: MANDATORY_SUPPORT
+        role: alternative_reference
+
+  - id: local_generative_media
+    name: Local Generative Media Fabric
+    status: MANDATORY
+    providers:
+      - name: Stability_Matrix
+        status: MANDATORY_SUPPORT
+      - name: ComfyUI
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/HunyuanVideo-1.5
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/OmniWeaving
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/HunyuanCustom
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/HunyuanVideo-Avatar
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/HunyuanVideo-Foley
+        status: MANDATORY_SUPPORT
+      - name: Tencent-Hunyuan/HunyuanImage-3.0
+        status: MANDATORY_SUPPORT
+        deployment: remote_or_distributed_capable
+
+  - id: visual_integration_human_workflow
+    name: Visual Integration Automation & Human Workflow Fabric
+    status: MANDATORY
+    providers:
+      - name: n8n
+        status: MANDATORY_SUPPORT
+        role: primary_reference
+
+  - id: remote_generative_model_api_aggregation
+    name: Remote Generative Model API & Aggregation Fabric
+    status: MANDATORY
+    providers:
+      - name: MuAPI
+        status: MANDATORY_SUPPORT
+        role: primary_reference
+
+  - id: raster_painting_generative_image_editing
+    name: AI-Assisted Raster Painting & Generative Image Editing Fabric
+    status: MANDATORY
+    providers:
+      - name: Krita
+        status: MANDATORY_SUPPORT
+        role: canonical_interactive_surface
+      - name: Acly/krita-ai-diffusion
+        status: MANDATORY_SUPPORT
+        role: primary_ai_adapter
+
+  - id: creator_nle
+    name: AI-Assisted Interactive Video Editing & Creator NLE Fabric
+    status: MANDATORY
+    providers:
+      - name: Clypra
+        status: MANDATORY_SUPPORT
+
+  - id: dj_performance_music_mixing
+    name: AI-Assisted DJ Performance & Music Mixing Fabric
+    status: MANDATORY
+    providers:
+      - name: Mixxx
+        status: MANDATORY_SUPPORT
+
+runtime_policies:
+  adaptive_inference_acceleration:
+    status: MANDATORY
+    capabilities:
+      - quantization
+      - cpu_gpu_offload
+      - few_step_or_distilled_execution
+      - cache_acceleration
+      - speculative_decoding
+      - hardware_aware_sparse_attention
+    hardware_gates:
+      - provider: Tencent-Hunyuan/flex-block-attn
+        rule: enable_only_on_supported_gpu_architectures
+        fallback_required: true
+
+watch:
+  - Tencent-Hunyuan/HunyuanVision
+  - Tencent-Hunyuan/Hunyuan3D-Buffalo1.0
+  - Tencent-Hunyuan/Hunyuan3D-WorldClaw
+
+optional:
+  - Tencent-Hunyuan/Hy3
+
+forbidden_authority_takeovers:
+  - provider_models_must_not_replace_Temporal
+  - provider_models_must_not_replace_NATS_JetStream
+  - provider_models_must_not_replace_Valkey
+  - provider_models_must_not_replace_Central_MCP_Capability_Gateway
+  - provider_models_must_not_replace_canonical_human_authoring_surfaces
