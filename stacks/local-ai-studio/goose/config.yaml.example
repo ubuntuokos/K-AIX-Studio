@@ -1,0 +1,58 @@
+# Install as ~/.config/goose/config.yaml after replacing the model placeholder.
+# Provider/model pinning is mandatory.
+
+active_provider: ollama
+providers:
+  ollama:
+    enabled: true
+    configured: true
+    model: REPLACE_WITH_PINNED_OLLAMA_MODEL_TAG
+
+OLLAMA_HOST: "http://127.0.0.1:11434"
+GOOSE_MODE: "approve"
+GOOSE_TELEMETRY_ENABLED: false
+SECURITY_PROMPT_ENABLED: true
+
+extensions:
+  developer:
+    type: builtin
+    name: developer
+    enabled: true
+    bundled: true
+    timeout: 300
+
+  voicebox:
+    type: streamable_http
+    name: voicebox
+    display_name: Voicebox Local Voice I/O
+    enabled: true
+    uri: "http://127.0.0.1:17493/mcp"
+    headers:
+      X-Voicebox-Client-Id: "goose"
+    env_keys: []
+    envs: {}
+    timeout: 300
+    available_tools:
+      - voicebox.speak
+      - voicebox.transcribe
+      - voicebox.list_captures
+      - voicebox.list_profiles
+
+  blender:
+    type: stdio
+    name: blender
+    display_name: Blender MCP
+    enabled: true
+    cmd: uvx
+    args:
+      - "--python"
+      - "3.11"
+      - "--from"
+      - "git+https://github.com/ahujasid/blender-mcp@c69b90153616f2d767fe2e825d3310efbf6fcab5"
+      - "blender-mcp"
+    env_keys: []
+    envs:
+      BLENDER_HOST: "127.0.0.1"
+      BLENDER_PORT: "9876"
+      UV_PYTHON_PREFERENCE: "only-managed"
+    timeout: 300
