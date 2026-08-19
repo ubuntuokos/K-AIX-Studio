@@ -1,0 +1,16 @@
+[Unit]
+Description=Goose ACP Studio Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/goose/studio.env
+ExecStart=%h/.local/bin/goose serve --platform desktop --enable-scheduler --host 127.0.0.1 --port 3284
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=default.target
