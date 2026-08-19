@@ -1,0 +1,90 @@
+name: ai-studio-core
+
+services:
+  ollama:
+    image: "${OLLAMA_IMAGE:?Set OLLAMA_IMAGE to an immutable tag or digest}"
+    container_name: ai-ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:11434:11434"
+    environment:
+      OLLAMA_HOST: "0.0.0.0:11434"
+      OLLAMA_MODELS: "/models"
+      OLLAMA_CONTEXT_LENGTH: "${OLLAMA_CONTEXT_LENGTH:-8192}"
+      OLLAMA_KEEP_ALIVE: "${OLLAMA_KEEP_ALIVE:-5m}"
+      OLLAMA_MAX_LOADED_MODELS: "${OLLAMA_MAX_LOADED_MODELS:-1}"
+      OLLAMA_NUM_PARALLEL: "${OLLAMA_NUM_PARALLEL:-1}"
+      OLLAMA_MAX_QUEUE: "${OLLAMA_MAX_QUEUE:-32}"
+      OLLAMA_NO_CLOUD: "${OLLAMA_NO_CLOUD:-1}"
+    volumes:
+      - "${OLLAMA_MODELS_DIR:?Set OLLAMA_MODELS_DIR}:/models"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids:
+                - "${GPU_COMPUTE_UUID:?Set GPU_COMPUTE_UUID}"
+              capabilities: [gpu]
+    networks: [studio]
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  openhuman-core:
+    build:
+      context: "${OPENHUMAN_SRC:?Set OPENHUMAN_SRC}"
+      dockerfile: Dockerfile
+    image: openhuman-core:local
+    container_name: ai-openhuman-core
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    tmpfs:
+      - /tmp
+    ports:
+      - "127.0.0.1:7788:7788"
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      OPENHUMAN_CORE_HOST: "0.0.0.0"
+      OPENHUMAN_CORE_PORT: "7788"
+      OPENHUMAN_WORKSPACE: "/home/openhuman/.openhuman"
+      XDG_CACHE_HOME: "/home/openhuman/.openhuman/cache"
+      TMPDIR: "/tmp"
+      RUST_LOG: "${RUST_LOG:-info}"
+      OPENHUMAN_OLLAMA_BASE_URL: "http://ollama:11434"
+    volumes:
+      - openhuman-workspace:/home/openhuman/.openhuman
+    mem_limit: "${OPENHUMAN_CORE_MEM_LIMIT:-8g}"
+    cpus: "${OPENHUMAN_CORE_CPUS:-4.0}"
+    networks: [studio]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7788/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+networks:
+  studio:
+    name: ai-studio-internal
+    driver: bridge
+
+volumes:
+  openhuman-workspace:
+    name: openhuman-workspace
